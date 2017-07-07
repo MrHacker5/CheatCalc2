@@ -1,0 +1,63 @@
+in 32 36 38 40 (order sensitive!)
+out 22 18 16 12
+
+SEPARATORS: % -> 2nd function; @ -> alpha
+ELEMENTS: %... -> special character/function; ...@... -> placeholder
+
+in out function
+2 13 %sf
+(sf -> 2nd function)
+0 13 %alpha
+3 13 %tab
+1 14 %up
+2 14 %right
+3 14 %down % %bottom
+0 14 %left
+1 13 %reset % %shutdown
+1 15 %mode
+2 15 %bs % %esc
+
+#3 12 @ %esc            broken line
+#0 12 sin(@)
+#2 12 cos(@) @ %@
+#1 12 tan(@) @ %space
+3 15 @^2 @ a b c %@
+0 15 @ d e f
+
+3 11 @ %shift
+0 11 % %meta @ (
+2 11 @^3 % sqrt() @ %space
+1 11 log(@) % cbrt(@) @ g h i
+3 2  ln(@) % 10^@ @ j k l
+0 2  @ m n o
+
+3 8  e^@ @ %caps
+0 8  @ )
+2 8  @ %@
+1 8  @ p q r s
+1 2  @ t u v
+2 2  @ w x y z
+
+
+3 0  7 % %space
+3 1  8
+3 9  9
+3 7  { ( [ < <= | /
+3 10 } ) ] > >= | \
+
+0 0  4
+0 1  5
+0 9  6
+0 7  * %@ ^ ' " `
+0 10 / : %% \ ; ! ?
+
+2 0  1 % %%
+2 1  2 % @^(-1)
+2 9  3 % pi
+2 7  + & # $ %@
+2 10 - = _ <= >= ~
+
+1 0  0
+1 1  , . : ; ! ?
+1 9  %%
+1 7  %enter

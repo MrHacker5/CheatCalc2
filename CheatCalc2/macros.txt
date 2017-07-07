@@ -1,0 +1,100 @@
+%no spaces between arguments!
+
+clear() Remove["Global`*"]
+null(m) NullSpace[m]
+ker(m) NullSpace[m]
+rk(m) MatrixRank[m]
+gauss(m) RowReduce[m]
+_join(m1,m2) Transpose[Join[Transpose[m1],Transpose[m2]]]
+sumBase(b1b2) RowReduce[b1b2]
+intersBase(b1b2) NullSpace[b1b2]
+changeBase(b1,b2) Inverse[b2].b1
+det(m) Det[m]
+cofact(m) Transpose[Inverse[m]*Det[m]]
+detEq(m) CharacteristicPolynomial[m,lambda]
+diag(l) DiagonalMatrix[l]
+inv(m) Inverse[m]
+minors(m) Minors[m]
+transp(m) Transpose[m]
+id(n) IdentityMatrix[n]
+eigenSys(m) Eigensystem[m]
+_cols(m) Length[m[[1]]]
+_0v(m) ConstantArray[0,Length[m]]
+_remcol(m,idxs) Transpose[Drop[Transpose[m],idxs]]
+solve(m,vars,b) Solve[m.vars==b,vars]
+
+%rows: ax1+bx2=c -> (a,b,c)
+solveAff(m) solve(_remcol(m,-1),Array[x,_cols(m)-1],m[[All,_cols(m)]])
+
+%rows: ax1+bx2+cx3=0 -> (a,b,c)
+solveLin(m) solve(m,Array[x,_cols(m)],_0v(m))
+
+%rows: ax1+bx2+c=0 -> (a,b,c)
+param(m) Solve[m.Append[Array[x,_cols(m)-1],1]==_0v(m),Array[x,_cols(m)-1]]
+
+%parametric to cartesian conversion: x=at1+bt2+c; y...  insert by row as many equations as the coefficients. replace the coefficients in the remaining equations
+par2cartAff(m) Solve[m.Append[Array[a,_cols(m)-1],1]==Array[x,Length[m]],Array[a,_cols(m)-1]]
+
+%space passing for n points cartesian equations from points (by row)
+solvePts(m) solve(Transpose[Join[Transpose[m],{ConstantArray[1,Length[m]]}]],Array[a,_cols(m)+1],_0v(m))
+
+%iperplane passing from n points. full equation for space of dim n-1 in An. insert points by row
+solvePtsPln(m) det(Join[{Array[x,Length[m]]},Drop[m,{1}]]-Array[m[[1]]&,Length[m]])==0
+
+norm(v) Norm[v]
+len(v) Norm[v]
+normv(v) Normalize[v]
+cross(u,v) Cross[u,v]
+proj(u,v) Projection[u,v]
+rej(u,v) u-Projection[u,v]
+dist(u,v) EuclideanDistance[u,v]
+
+%norms and normalized vectors. vectors by row
+normm(m) {Array[len(m[[#]])&,Length[m]],Array[normv(m[[#]])&,Length[m]]}
+
+%area if triangle from 3 points. only in A3
+area3d(vm) Norm[Cross[vm[[2]]-vm[[1]],vm[[3]]-vm[[1]]]]/2
+
+%inserire base del sottosp. per colonna
+projmat(b) b.Inverse[Transpose[b].b].Transpose[b]
+
+%(v1 x v2).v3  vectors by row
+triple(vm) det(vm)
+
+%distance between skew rays. w=(a point in r2)-(a point in r1); v1=r1 direction vector; v2=r2 direction vector
+distv3d(w,v1,v2) Abs[w.Cross[v1,v2]]/Norm[Cross[v1,v2]]
+
+%distance between point p and ray r. pr=a point in r; pv=r direction vector
+distPtR(p,pr,vr) Norm[Cross[p-pr,vr]]/Norm[vr]
+
+%distance between point pt and plane pln. pln= coeffients of plane in cartesian form. ex: ax+by+cz+d=0 -> (a,b,c,d)
+distPtPln(pt,pln) Abs[Append[pt,1].pln]/Norm[Drop[pln,-1]]
+
+%angle between vectors: acos((u.v)/|u||v|)
+angle(u,v) VectorAngle[u,v]
+
+%orthonormalize vectors (by row).
+orthonorm(vm) Orthogonalize[vm]
+
+%Gram-Schmidt: find second, third and fourth vector
+orthov2(u,v1) u-Projection[u,v1]
+orthov3(u,v1,v2) u-Projection[u,v1]-Projection[u,v2]
+orthov4(u,v1,v2,v3) u-Projection[u,v1]-Projection[u,v2]-Projection[u,v3]
+
+_projm(u,gm,v) ((u.gm.v)/(v.gm.v))*v
+%_orthov(vm,gm,n) vm[[n]]-Total[Array[_projm(vm[[n]],gm,_orthov(vm,gm,n+1-#))&,n-1, 2]] cannot use recursion :(
+%orthovgm(vm,gm) Array[_orthov(vm,gm,#)&,Length[vm]]
+_ortho2(vm,gm) (vm[[2]]-_projm(vm[[2]],gm,vm[[1]]))
+_ortho3(vm,gm) (vm[[3]]-_projm(vm[[3]],gm,vm[[1]])-_projm(vm[[3]],gm,_ortho2(vm,gm)))
+_ortho4(vm,gm) (vm[[4]]-_projm(vm[[4]],gm,vm[[1]])-_projm(vm[[4]],gm,_ortho2(vm,gm))-_projm(vm[[4]],gm,_ortho3(vm,gm)))
+orthovgm3(vm,gm) {vm[[1]],_ortho2(vm,gm),_ortho3(vm,gm)}
+orthovgm4(vm,gm) {vm[[1]],_ortho2(vm,gm),_ortho3(vm,gm),_ortho4(vm,gm)}
+
+%this macros can take more than a minute to parse on a raspberry pi zero! the calculator is not crashed, it's parsing.
+%Gram-Schmidth: othogonalize all vector at once (vectors by row). -3/4=n.of vectors; n=n. of conponents in a vector ex: (x,y,z)->3
+ortho3(vm,n) orthovgm3(vm,id(n))
+ortho4(vm,n) orthovgm4(vm,id(n))
+
+%find an orthogonal base for the scalar product matrix gm. -3/4=matrix size
+orthoGm3(gm) orthovgm3(id(3), gm)
+orthoGm4(gm) orthovgm4(id(4), gm)
